@@ -23,3 +23,4 @@ Output:
 Limits:
 - Heuristic validation only
 - Outreach profile is opinionated
+- Intended to fail fast on shape/noise issues, not verify semantic truth

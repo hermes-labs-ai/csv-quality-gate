@@ -55,6 +55,7 @@ JSON mode:
 - file path does not exist
 - wrong profile chosen for the dataset
 - required column names do not match the actual schema
+- profile heuristics are too strict for the CSV being checked
 
 ## What counts as success
 

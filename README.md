@@ -33,6 +33,8 @@ rows: 125
   WARNING: duplicate rate 12% exceeds warning threshold 10%
 ```
 
+![csv-quality-gate preview](assets/preview.png)
+
 It is designed for narrow, honest use as a preflight gate, not as a full data quality platform.
 
 ## Install
@@ -112,6 +114,10 @@ csv-quality-gate check leads.csv --json
 - When you need semantic validation of the data itself
 - When your input is not CSV
 - When you need a full data quality framework with lineage and profiling
+
+## More From Hermes Labs
+
+- [intent-verify](https://github.com/roli-lpci/intent-verify): repo intent verification and spec drift checks
 
 ## Development
 

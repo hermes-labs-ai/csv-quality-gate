@@ -1,0 +1,7 @@
+$ csv-quality-gate check leads.csv --profile outreach
+csv-quality-gate: FAIL
+file: leads.csv
+profile: outreach
+rows: 125
+  ERROR: missing required column: person_name
+  WARNING: duplicate rate 12% exceeds warning threshold 10%
