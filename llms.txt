@@ -1,32 +1,45 @@
 csv-quality-gate
 
-Purpose:
-- Run CSV preflight validation before expensive pipeline steps.
+Summary:
+- csv-quality-gate is a command-line data quality gate that runs CSV preflight validation and returns pass / warn / fail before a pipeline ingests bad input. Stdlib-only, no third-party runtime dependencies.
 
 Use when:
-- You need batch CSV quality checks.
+- You need batch CSV quality checks on a single file.
 - You want to fail fast before ETL, enrichment, or outreach runs.
 
 Do not use when:
 - You need semantic validation of records.
 - The input is not CSV.
+- You need a full data quality platform with lineage, profiling, or schema inference.
 
 Command:
 - `csv-quality-gate check leads.csv`
 - `csv-quality-gate check leads.csv --profile outreach`
 - `csv-quality-gate check leads.csv --json`
 
+Checks performed:
+- Missing required columns
+- Empty file (no data rows)
+- Empty rate of critical columns vs warning/fail thresholds
+- Duplicate rate of a key column vs warning/fail thresholds
+- (outreach profile) suspicious company-name patterns via regex
+
 Output:
 - Text status: `PASS`, `WARN`, or `FAIL`
-- JSON object with `path`, `profile`, `rows`, `status`, and `issues`
+- JSON object with `path`, `profile`, `rows`, `status`, and `issues[]`
+
+Exit codes:
+- `0` pass
+- `1` warnings only
+- `2` fail, or file not found
 
 Limits:
-- Heuristic validation only
+- Heuristic validation only (empty-rate, duplicate-rate, regex name patterns)
 - Outreach profile is opinionated
-- Intended to fail fast on shape/noise issues, not verify semantic truth
+- Validates shape and obvious noise, not semantic truth
 
+Part of the Hermes Labs reliability stack:
+- See https://github.com/hermes-labs-ai for the other open-source reliability tools. csv-quality-gate guards pipeline input data; it complements, and does not replace, the agent- and prompt-level tools in the stack.
 
-## About Hermes Labs
-
-Hermes Labs is an independent AI-reliability lab building open-source tools that catch silent failure modes in production AI. More at https://hermes-labs.ai
-
+About Hermes Labs:
+- Hermes Labs is an independent AI-reliability lab building open-source tools that catch silent failure modes in production AI. More at https://hermes-labs.ai
