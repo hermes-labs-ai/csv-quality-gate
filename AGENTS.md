@@ -1,10 +1,12 @@
 # AGENTS.md
 
+csv-quality-gate is a command-line data quality gate that runs CSV preflight validation and returns `pass`, `warn`, or `fail` before a pipeline ingests bad input. Stdlib-only, no third-party runtime dependencies.
+
 ## What this tool does
 
-- Validates a CSV file before a batch pipeline runs.
-- Checks required columns, empty critical fields, duplicate rates, and optional suspicious values.
-- Returns `pass`, `warn`, or `fail`.
+- Validates a single CSV file before a batch pipeline runs.
+- Checks required columns, empty files, empty critical fields, duplicate rates, and (outreach profile) suspicious values.
+- Returns `pass`, `warn`, or `fail` with exit codes `0`, `1`, and `2`.
 
 ## When to use it
 
@@ -62,3 +64,7 @@ JSON mode:
 - `pass` means no issues
 - `warn` means warnings only
 - `fail` means at least one blocking issue
+
+## Part of the Hermes Labs reliability stack
+
+See https://github.com/hermes-labs-ai for the other open-source reliability tools. csv-quality-gate guards pipeline input data and complements, rather than replaces, the agent- and prompt-level tools in the stack.
