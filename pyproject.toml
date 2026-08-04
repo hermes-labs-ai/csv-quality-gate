@@ -23,6 +23,13 @@ classifiers = [
 [project.scripts]
 csv-quality-gate = "csv_quality_gate.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/hermes-labs-ai/csv-quality-gate"
+Documentation = "https://github.com/hermes-labs-ai/csv-quality-gate#readme"
+Repository = "https://github.com/hermes-labs-ai/csv-quality-gate"
+Issues = "https://github.com/hermes-labs-ai/csv-quality-gate/issues"
+Changelog = "https://github.com/hermes-labs-ai/csv-quality-gate/blob/main/CHANGELOG.md"
+
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.5"]
 
