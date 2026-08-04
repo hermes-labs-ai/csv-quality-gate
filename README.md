@@ -7,7 +7,7 @@
 
 csv-quality-gate is a command-line data quality gate that runs CSV preflight validation, failing fast before a pipeline ingests broken, incomplete, duplicated, or junk input.
 
-It runs batch quality checks on a single CSV and returns `pass`, `warn`, or `fail` (with matching exit codes) before expensive pipeline steps burn time on bad input. It checks for missing required columns, empty files, empty critical cells, duplicate rows, and — under the `outreach` profile — suspicious contact-name patterns. It is stdlib-only: no third-party runtime dependencies.
+It runs batch quality checks on a single CSV and returns `pass`, `warn`, or `fail` (with matching exit codes) before expensive pipeline steps burn time on bad input. It checks for missing required columns, empty files, empty critical cells, duplicate rows, and — under the `outreach` profile — suspicious company-name patterns. It is stdlib-only: no third-party runtime dependencies.
 
 The problems it is built for:
 
