@@ -51,14 +51,6 @@ For development:
 pip install -e ".[dev]"
 ```
 
-## Common search-intent use cases
-
-- CSV preflight validation
-- batch CSV quality checks
-- fail fast before pipeline runs
-- CSV validation before ETL or enrichment
-- detect junk CSV rows before batch jobs
-
 ## Usage
 
 ```bash
