@@ -1,5 +1,9 @@
 name: CSV quality gate
 description: Validate one CSV with csv-quality-gate and write a JSON receipt.
+author: Hermes Labs
+branding:
+  icon: check-circle
+  color: green
 
 inputs:
   csv-path:

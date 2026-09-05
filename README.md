@@ -276,6 +276,25 @@ arbitrary CLI options.
 A ready-to-copy install-based workflow also lives in
 [`examples/github-action.yml`](examples/github-action.yml).
 
+### GitHub Marketplace
+
+`action.yml` carries the metadata a Marketplace listing needs (name,
+description, author, branding). Listing is a maintainer step taken on the GitHub
+release form, not something the repository does on its own; the steps are in
+[Releasing](CONTRIBUTING.md#releasing). Whether you reach the Action through
+Marketplace or this repository, the `uses:` line above is the same: pin a
+release tag (`@v0.3.0`) or a commit SHA.
+
+## Recipes
+
+Short, copyable setups that put the gate in front of a specific tool. Each uses
+a custom profile and ships with one passing and one failing fixture you can run
+from a checkout:
+
+- [dbt seeds](examples/dbt-seed.md) — gate `seeds/*.csv` before `dbt seed`.
+- [promptfoo datasets](examples/promptfoo-dataset.md) — gate a CSV test set
+  before `promptfoo eval`.
+
 ## Development
 
 ```bash
