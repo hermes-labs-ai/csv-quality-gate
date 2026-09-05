@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
+from .models import GateResult, Issue, Severity, Status
 from .profiles import PROFILES
 from .report import exit_code, to_json, to_text
 from .validator import validate_csv
@@ -21,8 +21,8 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument(
         "--profile",
         default="generic",
-        choices=sorted(PROFILES),
-        help="validation profile, for example generic or outreach",
+        metavar="PROFILE",
+        help="validation profile (generic or outreach)",
     )
     check.add_argument("--json", action="store_true", help="emit machine-readable JSON output")
     return parser
@@ -32,9 +32,36 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     path = Path(args.csv_path)
+    if args.profile not in PROFILES:
+        result = GateResult(
+            path=str(path),
+            profile=args.profile,
+            row_count=0,
+            issues=[Issue(Severity.ERROR, f"unknown profile: {args.profile}")],
+            status=Status.FAIL,
+        )
+        print(to_json(result) if args.json else to_text(result))
+        return exit_code(result)
     if not path.exists():
-        print(f"csv-quality-gate: file not found: {path}", file=sys.stderr)
-        return 2
+        result = GateResult(
+            path=str(path),
+            profile=args.profile,
+            row_count=0,
+            issues=[Issue(Severity.ERROR, f"file not found: {path}")],
+            status=Status.FAIL,
+        )
+        print(to_json(result) if args.json else to_text(result))
+        return exit_code(result)
+    if not path.is_file():
+        result = GateResult(
+            path=str(path),
+            profile=args.profile,
+            row_count=0,
+            issues=[Issue(Severity.ERROR, f"path is not a file: {path}")],
+            status=Status.FAIL,
+        )
+        print(to_json(result) if args.json else to_text(result))
+        return exit_code(result)
     result = validate_csv(path, profile_name=args.profile)
     print(to_json(result) if args.json else to_text(result))
     return exit_code(result)

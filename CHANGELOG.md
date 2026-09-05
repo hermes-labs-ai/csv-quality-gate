@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 - 2026-09-05
+
+- Added a root composite GitHub Action with typed CSV path and profile inputs.
+- The Action writes a JSON receipt and exposes its status and receipt path while
+  preserving the CLI's pass/warn/fail exit codes.
+
 ## 0.1.2 - 2026-08-04
 
 - Clarified the README, limitations, and outreach-profile heuristic without
