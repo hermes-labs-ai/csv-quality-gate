@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- The composite Action declares `author` and Marketplace `branding` in
+  `action.yml`; inputs, outputs, and behavior are unchanged.
+- Added ecosystem recipes with one passing and one failing fixture each:
+  `examples/dbt-seed.md` (gate `seeds/*.csv` before `dbt seed`) and
+  `examples/promptfoo-dataset.md` (gate a CSV test set before `promptfoo eval`).
+- Documented the release and Marketplace-listing steps in `CONTRIBUTING.md`.
+
 ## 0.3.0 - 2026-09-05
 
 - Added project-specific profiles: `check --config FILE --profile NAME` loads

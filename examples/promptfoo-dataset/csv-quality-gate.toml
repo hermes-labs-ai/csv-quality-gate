@@ -1,0 +1,15 @@
+# csv-quality-gate profile for a promptfoo CSV test set. See ../promptfoo-dataset.md.
+# Run before the eval:
+#   csv-quality-gate check tests.csv --config csv-quality-gate.toml --profile promptfoo
+[profiles.promptfoo]
+required_columns = ["question", "__expected"]
+critical_columns = ["question", "__expected"]
+duplicate_column = "question"
+empty_warning_rate = 0.0        # any empty question or assertion is at least a warning ...
+empty_fail_rate = 0.10          # ... and 10% or more blocks the eval
+duplicate_warning_rate = 0.0    # any repeated question is a warning ...
+duplicate_fail_rate = 0.20      # ... and 20% or more blocks the eval
+suspicious_column = "__expected"
+suspicious_patterns = ['^(todo|tbd|fixme)$']   # placeholder assertions (case-insensitive)
+suspicious_warning_rate = 0.0
+suspicious_fail_rate = 0.10

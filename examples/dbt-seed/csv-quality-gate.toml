@@ -1,0 +1,11 @@
+# csv-quality-gate profile for dbt seed files. See ../dbt-seed.md.
+# Run from the dbt project root, before `dbt seed`:
+#   csv-quality-gate check seeds/*.csv --config csv-quality-gate.toml --profile seed
+[profiles.seed]
+required_columns = ["country_code", "country_name"]
+critical_columns = ["country_code", "country_name"]
+duplicate_column = "country_code"
+empty_warning_rate = 0.0        # any empty code or name is at least a warning ...
+empty_fail_rate = 0.10          # ... and 10% or more blocks the seed
+duplicate_warning_rate = 0.0
+duplicate_fail_rate = 0.0       # any repeated country_code blocks the seed

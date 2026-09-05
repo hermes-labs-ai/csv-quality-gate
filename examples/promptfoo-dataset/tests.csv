@@ -1,0 +1,7 @@
+question,__expected
+What is the capital of France?,icontains: Paris
+What is the capital of Italy?,icontains: Rome
+What is the capital of Spain?,icontains: Madrid
+What is the capital of Portugal?,icontains: Lisbon
+What is the capital of Austria?,icontains: Vienna
+What is the capital of Germany?,icontains: Berlin
