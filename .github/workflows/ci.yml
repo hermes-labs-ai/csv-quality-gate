@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,7 +24,8 @@ jobs:
       - name: Tests
         run: pytest -q
 
-  pre-commit-hook:
+  precommit:
+    name: pre-commit-hook
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -108,3 +109,19 @@ jobs:
         run: |
           test "$OUTCOME" = success && test "$STATUS" = pass
           python -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['profile']=='leads' and r['config'].endswith('action-config.toml'), r" "$RECEIPT"
+
+  # Keep the protected-branch status context stable while requiring every CI lane.
+  test:
+    needs: [python, precommit, action]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every release lane to pass
+        env:
+          PYTHON_RESULT: ${{ needs.python.result }}
+          PRE_COMMIT_RESULT: ${{ needs.precommit.result }}
+          ACTION_RESULT: ${{ needs.action.result }}
+        run: |
+          test "$PYTHON_RESULT" = success
+          test "$PRE_COMMIT_RESULT" = success
+          test "$ACTION_RESULT" = success
