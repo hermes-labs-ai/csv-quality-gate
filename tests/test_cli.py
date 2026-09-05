@@ -37,6 +37,17 @@ def test_cli_missing_file_json_receipt_shape():
     assert json.loads(result.stdout)["status"] == "fail"
 
 
+def test_cli_directory_path_json_receipt_shape():
+    result = run_cli("check", str(FIXTURES), "--json")
+    assert result.returncode == 2
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "fail"
+    assert payload["issues"] == [
+        {"severity": "error", "message": f"path is not a file: {FIXTURES}"}
+    ]
+    assert result.stderr == ""
+
+
 def test_cli_unknown_profile_json_receipt_shape():
     result = run_cli("check", str(FIXTURES / "clean.csv"), "--profile", "unsupported", "--json")
     assert result.returncode == 2
