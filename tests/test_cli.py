@@ -29,3 +29,15 @@ def test_cli_fail():
     result = run_cli("check", str(FIXTURES / "missing_people.csv"), "--profile", "outreach")
     assert result.returncode == 2
     assert "FAIL" in result.stdout
+
+
+def test_cli_missing_file_json_receipt_shape():
+    result = run_cli("check", "missing.csv", "--json")
+    assert result.returncode == 2
+    assert json.loads(result.stdout)["status"] == "fail"
+
+
+def test_cli_unknown_profile_json_receipt_shape():
+    result = run_cli("check", str(FIXTURES / "clean.csv"), "--profile", "unsupported", "--json")
+    assert result.returncode == 2
+    assert json.loads(result.stdout)["status"] == "fail"

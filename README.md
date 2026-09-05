@@ -118,7 +118,34 @@ csv-quality-gate check leads.csv --json
 
 ## CI / GitHub Actions
 
-A ready-to-copy workflow lives in [`examples/github-action.yml`](examples/github-action.yml). It installs the package and runs a check so a bad checked-in CSV fails the build.
+Use this repository directly as a composite Action. It installs the packaged CLI,
+runs the selected profile, and always writes a JSON receipt at
+`$GITHUB_WORKSPACE/csv-quality-gate-receipt.json`. The `status` and `receipt`
+outputs remain available even when the Action exits with a warning or failure.
+
+```yaml
+- id: csv_gate
+  uses: hermes-labs-ai/csv-quality-gate@v0.2.0
+  with:
+    csv-path: data/leads.csv
+    profile: outreach
+
+- run: echo "${{ steps.csv_gate.outputs.status }}"
+```
+
+The only inputs are `csv-path` and `profile` (`generic` or `outreach`); the
+Action deliberately accepts no free-form command or shell arguments. It returns
+the same exit codes as the CLI: `0` for pass, `1` for warn, and `2` for fail.
+Use `continue-on-error: true` on a calling step if your workflow needs to inspect
+warning or failure outputs before deciding how to proceed.
+
+The receipt path is fixed per workspace, so do not run more than one instance in
+parallel in the same workspace. The Action validates the package's existing CSV
+heuristics only; it does not add schema inference, semantic verification, or
+arbitrary CLI options.
+
+A ready-to-copy install-based workflow also lives in
+[`examples/github-action.yml`](examples/github-action.yml).
 
 ## Development
 

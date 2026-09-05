@@ -20,3 +20,43 @@ jobs:
         run: ruff check .
       - name: Tests
         run: pytest -q
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - id: pass
+        uses: ./
+        with:
+          csv-path: .github/fixtures/action-pass.csv
+          profile: generic
+      - name: Assert pass action result
+        env:
+          OUTCOME: ${{ steps.pass.outcome }}
+          STATUS: ${{ steps.pass.outputs.status }}
+        run: test "$OUTCOME" = success && test "$STATUS" = pass
+      - id: warn
+        continue-on-error: true
+        uses: ./
+        with:
+          csv-path: .github/fixtures/action-warn.csv
+          profile: generic
+      - name: Assert warn action result
+        env:
+          OUTCOME: ${{ steps.warn.outcome }}
+          STATUS: ${{ steps.warn.outputs.status }}
+        run: test "$OUTCOME" = failure && test "$STATUS" = warn
+      - id: fail
+        continue-on-error: true
+        uses: ./
+        with:
+          csv-path: .github/fixtures/action-fail.csv
+          profile: outreach
+      - name: Assert fail action result
+        env:
+          OUTCOME: ${{ steps.fail.outcome }}
+          STATUS: ${{ steps.fail.outputs.status }}
+        run: test "$OUTCOME" = failure && test "$STATUS" = fail
