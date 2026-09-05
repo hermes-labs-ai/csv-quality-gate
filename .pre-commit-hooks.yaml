@@ -1,0 +1,20 @@
+# Hook definitions for https://pre-commit.com.
+# Usage in a project's .pre-commit-config.yaml:
+#
+#   - repo: https://github.com/hermes-labs-ai/csv-quality-gate
+#     rev: v0.3.0
+#     hooks:
+#       - id: csv-quality-gate
+#         args: [--profile, outreach]
+#         # or: args: [--config, csv-quality-gate.toml, --profile, leads]
+#
+# The hook receives every staged .csv file and blocks the commit on warn (exit 1)
+# or fail (exit 2), exactly like the CLI.
+- id: csv-quality-gate
+  name: csv-quality-gate
+  description: CSV preflight validation (pass / warn / fail) on staged CSV files.
+  entry: csv-quality-gate check
+  language: python
+  types: [csv]
+  require_serial: true
+  minimum_pre_commit_version: "2.9.0"

@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.3.0 - 2026-09-05
+
+- Added project-specific profiles: `check --config FILE --profile NAME` loads
+  TOML (Python 3.11+) or JSON profiles declared under `[profiles]`. Profiles are
+  data only (column names, thresholds, regex strings) and may `extends` a
+  built-in. Invalid files are rejected with a precise message and a normal
+  `fail` receipt. Built-in profiles and their behavior are unchanged.
+- Added bounded evidence to issues: each empty-rate, duplicate-rate, and
+  suspicious-value issue now carries the affected column, the count of affected
+  rows, and up to `--max-examples` (default 5) physical line numbers. Cell
+  values are never emitted. JSON issues gain an optional `evidence` object;
+  issues without evidence keep the 0.2.0 shape.
+- The `check` command accepts several CSV paths; text output prints one block
+  per file, JSON output becomes an array, and the exit code is the worst status.
+- Added a pre-commit hook (`.pre-commit-hooks.yaml`, id `csv-quality-gate`)
+  so the same gate runs on staged CSV files before commit.
+- The composite Action accepts an optional `config` input; `csv-path` and
+  `profile` behave exactly as before.
+- Exposed `suspicious_warning_rate` and `suspicious_fail_rate` on `Profile`
+  (defaults keep the previous fixed 10% / 30%). Public API additions:
+  `Profile`, `Evidence`, `ConfigError`, `load_config`, and keyword-only
+  `profile`, `max_examples`, and `config` parameters on `validate_csv`.
+- CI now tests Python 3.10 and 3.11 and exercises the pre-commit hook.
+- Fixed: a file that is not valid UTF-8 now yields a normal `fail` receipt
+  instead of a traceback (which the Action previously reported as `warn`).
+- Fixed: a header with surrounding whitespace (for example `company `) is now
+  matched and read as that column instead of being counted as fully empty.
+- Fixed: a header-only file no longer adds a false `missing required column`
+  error next to `csv has no data rows`; the status is still `fail`.
+- A warning or fail rate of `0.0` now means "any occurrence"; a check with no
+  affected rows never raises an issue. Built-in thresholds are unaffected.
+- Options may appear between CSV paths (`check a.csv --json b.csv`).
+
 ## 0.2.0 - 2026-09-05
 
 - Added a root composite GitHub Action with typed CSV path and profile inputs.

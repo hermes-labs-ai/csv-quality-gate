@@ -1,0 +1,29 @@
+# Project-specific profiles for csv-quality-gate.
+# Run with: csv-quality-gate check data/leads.csv --config csv-quality-gate.toml --profile leads
+#
+# Every key is optional. A profile that does not `extends` a built-in starts
+# with no columns and the generic thresholds; `extends = "generic"` or
+# `extends = "outreach"` inherits that built-in's columns, patterns, and rates.
+# Values are data only: column names, rates between 0 and 1, and regular
+# expressions (matched case-insensitively). Nothing in this file is executed.
+
+[profiles.leads]
+extends = "outreach"                 # inherit the outreach heuristics ...
+required_columns = ["email", "company", "person_name"]
+critical_columns = ["email", "person_name"]
+duplicate_column = "email"           # ... but deduplicate on email instead of company
+empty_warning_rate = 0.05
+empty_fail_rate = 0.20
+duplicate_warning_rate = 0.02
+duplicate_fail_rate = 0.10
+
+[profiles.orders]
+required_columns = ["order_id", "sku", "quantity"]
+critical_columns = ["order_id", "sku"]
+duplicate_column = "order_id"
+duplicate_warning_rate = 0.0         # any duplicate order id is at least a warning
+duplicate_fail_rate = 0.05
+suspicious_column = "sku"
+suspicious_patterns = ['^\s*$', '^test', '^(n/?a|none|null|tbd)$']
+suspicious_warning_rate = 0.01
+suspicious_fail_rate = 0.10

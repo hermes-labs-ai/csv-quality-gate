@@ -1,0 +1,13 @@
+# Copy into your repository as .pre-commit-config.yaml (or merge into it), then run:
+#   pip install pre-commit && pre-commit install
+repos:
+  - repo: https://github.com/hermes-labs-ai/csv-quality-gate
+    rev: v0.3.0
+    hooks:
+      - id: csv-quality-gate
+        # Built-in profile:
+        args: [--profile, outreach]
+        # Project-specific profile from a config file checked into the repo:
+        # args: [--config, csv-quality-gate.toml, --profile, leads]
+        # Limit which CSVs are gated:
+        # files: ^data/.*\.csv$

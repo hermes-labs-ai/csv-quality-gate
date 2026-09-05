@@ -5,13 +5,16 @@ on:
   pull_request:
 
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - name: Install package
         run: |
           python -m pip install --upgrade pip
@@ -20,6 +23,35 @@ jobs:
         run: ruff check .
       - name: Tests
         run: pytest -q
+
+  precommit:
+    name: pre-commit-hook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pre-commit
+      - name: Clean CSV passes the hook
+        run: pre-commit try-repo . csv-quality-gate --files tests/fixtures/clean.csv
+      - name: Warn CSV blocks the hook
+        run: |
+          if pre-commit try-repo . csv-quality-gate --files tests/fixtures/duplicates.csv; then
+            echo "expected the hook to fail on a warn fixture" >&2; exit 1
+          fi
+      - name: Custom profile via hook args
+        run: |
+          cat > "$RUNNER_TEMP/pre-commit-config.yaml" <<EOF
+          repos:
+            - repo: $PWD
+              rev: $GITHUB_SHA
+              hooks:
+                - id: csv-quality-gate
+                  args: [--config, tests/fixtures/project.toml, --profile, leads]
+          EOF
+          pre-commit run --config "$RUNNER_TEMP/pre-commit-config.yaml" csv-quality-gate \
+            --files tests/fixtures/leads_pass.csv
 
   action:
     runs-on: ubuntu-latest
@@ -48,7 +80,10 @@ jobs:
         env:
           OUTCOME: ${{ steps.warn.outcome }}
           STATUS: ${{ steps.warn.outputs.status }}
-        run: test "$OUTCOME" = failure && test "$STATUS" = warn
+          RECEIPT: ${{ steps.warn.outputs.receipt }}
+        run: |
+          test "$OUTCOME" = failure && test "$STATUS" = warn
+          python -c "import json,sys; r=json.load(open(sys.argv[1])); i=r['issues'][0]; assert i['evidence']['rows'], r" "$RECEIPT"
       - id: fail
         continue-on-error: true
         uses: ./
@@ -60,3 +95,33 @@ jobs:
           OUTCOME: ${{ steps.fail.outcome }}
           STATUS: ${{ steps.fail.outputs.status }}
         run: test "$OUTCOME" = failure && test "$STATUS" = fail
+      - id: config
+        uses: ./
+        with:
+          csv-path: .github/fixtures/action-config.csv
+          profile: leads
+          config: .github/fixtures/action-config.toml
+      - name: Assert custom-profile action result
+        env:
+          OUTCOME: ${{ steps.config.outcome }}
+          STATUS: ${{ steps.config.outputs.status }}
+          RECEIPT: ${{ steps.config.outputs.receipt }}
+        run: |
+          test "$OUTCOME" = success && test "$STATUS" = pass
+          python -c "import json,sys; r=json.load(open(sys.argv[1])); assert r['profile']=='leads' and r['config'].endswith('action-config.toml'), r" "$RECEIPT"
+
+  # Keep the protected-branch status context stable while requiring every CI lane.
+  test:
+    needs: [python, precommit, action]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every release lane to pass
+        env:
+          PYTHON_RESULT: ${{ needs.python.result }}
+          PRE_COMMIT_RESULT: ${{ needs.precommit.result }}
+          ACTION_RESULT: ${{ needs.action.result }}
+        run: |
+          test "$PYTHON_RESULT" = success
+          test "$PRE_COMMIT_RESULT" = success
+          test "$ACTION_RESULT" = success
