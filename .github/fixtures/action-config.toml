@@ -1,0 +1,4 @@
+[profiles.leads]
+required_columns = ["email", "company"]
+critical_columns = ["email"]
+duplicate_column = "email"

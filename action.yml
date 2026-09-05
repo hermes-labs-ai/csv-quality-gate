@@ -6,9 +6,15 @@ inputs:
     description: Path to the CSV file to validate, relative to the workspace or absolute.
     required: true
   profile:
-    description: Validation profile to run.
+    description: Validation profile to run (a built-in or one declared in `config`).
     required: false
     default: generic
+  config:
+    description: >-
+      Optional TOML or JSON file (relative to the workspace or absolute) declaring
+      project-specific profiles under [profiles]. Leave empty to use built-ins only.
+    required: false
+    default: ""
 
 outputs:
   status:
@@ -34,10 +40,15 @@ runs:
       env:
         CSV_QUALITY_GATE_PATH: ${{ inputs.csv-path }}
         CSV_QUALITY_GATE_PROFILE: ${{ inputs.profile }}
+        CSV_QUALITY_GATE_CONFIG: ${{ inputs.config }}
       run: |
         receipt="$GITHUB_WORKSPACE/csv-quality-gate-receipt.json"
+        args=(check "$CSV_QUALITY_GATE_PATH" --profile "$CSV_QUALITY_GATE_PROFILE" --json)
+        if [ -n "$CSV_QUALITY_GATE_CONFIG" ]; then
+          args+=(--config "$CSV_QUALITY_GATE_CONFIG")
+        fi
         set +e
-        csv-quality-gate check "$CSV_QUALITY_GATE_PATH" --profile "$CSV_QUALITY_GATE_PROFILE" --json > "$receipt"
+        csv-quality-gate "${args[@]}" > "$receipt"
         code=$?
         set -e
         case "$code" in

@@ -4,7 +4,7 @@ Summary:
 - csv-quality-gate is a command-line data quality gate that runs CSV preflight validation and returns pass / warn / fail before a pipeline ingests bad input. Stdlib-only, no third-party runtime dependencies.
 
 Use when:
-- You need batch CSV quality checks on a single file.
+- You need batch CSV quality checks on one or more files.
 - You want to fail fast before ETL, enrichment, or outreach runs.
 
 Do not use when:
@@ -16,6 +16,8 @@ Command:
 - `csv-quality-gate check leads.csv`
 - `csv-quality-gate check leads.csv --profile outreach`
 - `csv-quality-gate check leads.csv --json`
+- `csv-quality-gate check leads.csv --config csv-quality-gate.toml --profile leads`
+- `csv-quality-gate check a.csv b.csv --max-examples 0`
 
 Checks performed:
 - Missing required columns
@@ -23,10 +25,12 @@ Checks performed:
 - Empty rate of critical columns vs warning/fail thresholds
 - Duplicate rate of a key column vs warning/fail thresholds
 - (outreach profile) suspicious company-name patterns via regex
+- Project-specific profiles (columns, thresholds, regex patterns) from a TOML or JSON `--config` file
 
 Output:
-- Text status: `PASS`, `WARN`, or `FAIL`
-- JSON object with `path`, `profile`, `rows`, `status`, and `issues[]`
+- Text status: `PASS`, `WARN`, or `FAIL`, one block per file, with an `evidence:` line per row-backed issue
+- JSON object with `path`, `profile`, `rows`, `status`, `issues[]`, optional `config`; an array when several paths are given
+- Each row-backed issue carries `evidence: {column, total, rows[]}` with bounded line numbers and no cell values
 
 Exit codes:
 - `0` pass
@@ -37,6 +41,11 @@ Limits:
 - Heuristic validation only (empty-rate, duplicate-rate, regex name patterns)
 - Outreach profile is opinionated
 - Validates shape and obvious noise, not semantic truth
+- Evidence is line numbers and counts only, never cell values
+
+Integrations:
+- pre-commit hook id `csv-quality-gate` (from `.pre-commit-hooks.yaml`)
+- Composite GitHub Action with `csv-path`, `profile`, and optional `config` inputs
 
 Part of the Hermes Labs reliability stack:
 - See https://github.com/hermes-labs-ai for the other open-source reliability tools. csv-quality-gate guards pipeline input data; it complements, and does not replace, the agent- and prompt-level tools in the stack.

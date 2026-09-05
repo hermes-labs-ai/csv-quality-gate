@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "leads": {
+      "extends": "generic",
+      "required_columns": ["email", "company"],
+      "critical_columns": ["email"],
+      "duplicate_column": "email",
+      "empty_warning_rate": 0.20,
+      "empty_fail_rate": 0.50,
+      "duplicate_warning_rate": 0.20,
+      "duplicate_fail_rate": 0.50,
+      "suspicious_column": "email",
+      "suspicious_patterns": ["^[^@]+$"],
+      "suspicious_warning_rate": 0.20,
+      "suspicious_fail_rate": 0.50
+    },
+    "minimal": {
+      "required_columns": ["id"]
+    }
+  }
+}
