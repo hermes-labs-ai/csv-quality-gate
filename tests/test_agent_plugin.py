@@ -56,7 +56,10 @@ def test_portable_manifest_follows_agent_plugins_schema():
     assert manifest["$schema"] == SCHEMA_ID
     assert NAME_PATTERN.match(manifest["name"]) and len(manifest["name"]) <= 64
     assert set(manifest) <= PORTABLE_KEYS, set(manifest) - PORTABLE_KEYS
-    assert set(manifest.get("author", {})) <= {"name", "email", "url"}
+    author = manifest.get("author", {})
+    assert isinstance(author, dict), author
+    assert set(author) <= {"name", "email", "url"}
+    assert all(isinstance(value, str) and value for value in author.values()), author
 
 
 def test_every_manifest_identity_matches_pyproject():
