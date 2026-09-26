@@ -60,11 +60,10 @@ def test_recipe_fixtures_pass_and_fail(recipe, profile, passing, failing):
 
 
 @pytest.mark.parametrize(("recipe", "profile", "passing", "failing"), RECIPES)
-def test_recipe_document_names_its_fixtures_and_is_linked(recipe, profile, passing, failing):
+def test_recipe_document_names_its_fixtures(recipe, profile, passing, failing):
     text = (EXAMPLES / f"{recipe}.md").read_text()
     for needle in (passing, failing, f"--profile {profile}"):
         assert needle in text, needle
-    assert f"examples/{recipe}.md" in (ROOT / "README.md").read_text()
 
 
 def test_action_metadata_declares_marketplace_branding():

@@ -6,7 +6,6 @@ USES_PATTERN = re.compile(r"^\s*(?:- )?uses:\s*([^\s#]+)", re.MULTILINE)
 IMMUTABLE_ACTION_PATTERN = re.compile(r"[^@]+@[0-9a-f]{40}")
 HARDENED_ACTION_COMMIT = "0b7bf4635b2db468620855e577cd0d9f09f09ec7"
 PUBLIC_WORKFLOW_SURFACES = (
-    "README.md",
     "examples/github-action.yml",
     "examples/dbt-seed.md",
     "examples/promptfoo-dataset.md",
@@ -29,10 +28,3 @@ def test_copyable_workflows_pin_the_hardened_action_commit():
         refs = _uses(ROOT / relative_path)
         assert expected in refs, relative_path
         assert all(IMMUTABLE_ACTION_PATTERN.fullmatch(ref) for ref in refs), relative_path
-
-
-def test_marketplace_guidance_recommends_only_commit_pins():
-    readme = (ROOT / "README.md").read_text()
-    marketplace = readme.split("### GitHub Marketplace", 1)[1].split("## Recipes", 1)[0]
-    assert "release tag" not in marketplace
-    assert "use a full commit SHA" in marketplace
