@@ -31,6 +31,7 @@ The problems it is built for:
 
 ```bash
 pip install csv-quality-gate
+csv-quality-gate --version   # confirm the installed release
 csv-quality-gate check leads.csv --profile outreach
 ```
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Mapping
+from importlib.metadata import PackageNotFoundError, version as _dist_version
 from pathlib import Path
 
 from .models import GateResult, Issue, Severity, Status
@@ -10,11 +11,19 @@ from .report import exit_code, to_json, to_json_many, to_text, to_text_many
 from .validator import DEFAULT_MAX_EXAMPLES, validate_csv
 
 
+def _package_version() -> str:
+    try:
+        return _dist_version("csv-quality-gate")
+    except PackageNotFoundError:
+        return "unknown (source checkout)"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="csv-quality-gate",
         description="Run CSV preflight validation and fail fast before expensive pipeline runs.",
     )
+    parser.add_argument("--version", action="version", version=f"csv-quality-gate {_package_version()}")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     check = subparsers.add_parser("check", help="run batch CSV quality checks on one or more files")

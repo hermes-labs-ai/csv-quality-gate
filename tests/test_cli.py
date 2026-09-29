@@ -181,3 +181,9 @@ def test_cli_still_rejects_unknown_options():
     assert result.returncode == 2
     assert "unrecognized arguments: --bogus" in result.stderr
     assert result.stdout == ""
+
+
+def test_cli_version_flag_prints_package_version():
+    result = run_cli("--version")
+    assert result.returncode == 0
+    assert result.stdout.startswith("csv-quality-gate ")
