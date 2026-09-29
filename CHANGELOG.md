@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Rows with non-empty values beyond the header (for example an unquoted comma
+  in `Acme, Inc`) now fail with line-number evidence instead of passing with
+  shifted columns.
+- A file that exists but cannot be read (for example permission denied) now
+  produces a per-file `fail` receipt and exit code 2 instead of a traceback
+  with exit code 1, which the Action reported as `warn`.
+
 - The composite GitHub Action now accepts newline-separated `csv-paths` for a
   batch check. `csv-path` remains supported for one file; exactly one path input
   is required. Batch receipts are JSON arrays and retain the CLI's worst-status

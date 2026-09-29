@@ -79,7 +79,11 @@ def _check_one(
         return _error_result(path, profile_name, f"file not found: {path}", config)
     if not path.is_file():
         return _error_result(path, profile_name, f"path is not a file: {path}", config)
-    return validate_csv(path, profile=profile, max_examples=max_examples, config=config)
+    try:
+        return validate_csv(path, profile=profile, max_examples=max_examples, config=config)
+    except OSError as exc:
+        reason = exc.strerror or type(exc).__name__
+        return _error_result(path, profile_name, f"could not read file: {path}: {reason}", config)
 
 
 def main(argv: list[str] | None = None) -> int:

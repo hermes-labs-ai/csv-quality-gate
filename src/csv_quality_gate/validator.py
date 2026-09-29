@@ -8,6 +8,8 @@ from .models import Evidence, GateResult, Issue, Severity, Status
 from .profiles import Profile, compile_patterns, get_profile
 
 DEFAULT_MAX_EXAMPLES = 5
+# Evidence column for row-structure issues that are not tied to one header.
+OVERFLOW_COLUMN = "*"
 
 
 def validate_csv(
@@ -33,12 +35,18 @@ def validate_csv(
 
     rows: list[dict[str, str | None]] = []
     line_numbers: list[int] = []
+    overflow_rows: list[int] = []
     try:
         with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
             for row in reader:
                 rows.append(row)
                 line_numbers.append(reader.line_num)
+                # DictReader parks fields beyond the header under the ``None``
+                # key. Non-empty overflow means values have shifted columns
+                # (e.g. an unquoted comma), so the checked cells are wrong.
+                if any((value or "").strip() for value in row.get(None) or ()):
+                    overflow_rows.append(reader.line_num)
             fieldnames = tuple(reader.fieldnames or ())
     except UnicodeDecodeError:
         issues.append(Issue(Severity.ERROR, "csv is not valid UTF-8"))
@@ -60,6 +68,20 @@ def validate_csv(
     if not rows:
         issues.append(Issue(Severity.ERROR, "csv has no data rows"))
         return GateResult(str(path), profile.name, 0, issues, Status.FAIL, config)
+
+    if overflow_rows:
+        issues.append(
+            Issue(
+                Severity.ERROR,
+                f"{len(overflow_rows)} row(s) have more fields than the header "
+                f"({len(fieldnames)} columns)",
+                Evidence(
+                    column=OVERFLOW_COLUMN,
+                    total=len(overflow_rows),
+                    rows=tuple(overflow_rows[:max_examples]),
+                ),
+            )
+        )
 
     def cell(row: dict[str, str | None], column: str) -> str:
         return (row.get(columns[column]) or "").strip()

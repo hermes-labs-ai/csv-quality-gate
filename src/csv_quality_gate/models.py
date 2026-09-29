@@ -21,7 +21,8 @@ class Evidence:
 
     ``rows`` holds physical line numbers in the CSV file (the header is line 1),
     capped by the caller's example limit. ``total`` is the full count of affected
-    rows. Cell values are never included.
+    rows. Cell values are never included. ``column`` is ``"*"`` for row-structure
+    issues (rows with more fields than the header) that belong to no column.
     """
 
     column: str

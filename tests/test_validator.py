@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from csv_quality_gate.models import Status
+from csv_quality_gate.models import Evidence, Severity, Status
 from csv_quality_gate.validator import validate_csv
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -91,3 +91,30 @@ def test_builtin_messages_unchanged_for_v0_2_fixtures():
         i.message
         for i in validate_csv(FIXTURES / "junk_companies.csv", profile_name="outreach").issues
     ] == ["suspicious company rate is 100%"]
+
+
+def test_rows_with_extra_fields_fail_instead_of_silently_shifting_columns(tmp_path):
+    # An unquoted comma in the company name shifts every later value one column
+    # right; the real email lands beyond the header and was never checked.
+    path = tmp_path / "shifted.csv"
+    path.write_text(
+        "company,person_name,email\n"
+        "Acme, Inc,Jane Doe,jane@acme.example\n"
+        "Delta Corp,Dan Moe,dan@delta.example\n"
+        "Beta, LLC,Bob Roe,bob@beta.example\n",
+        encoding="utf-8",
+    )
+    result = validate_csv(path, profile_name="outreach")
+    assert result.status is Status.FAIL
+    issue = next(i for i in result.issues if "more fields than the header" in i.message)
+    assert issue.severity is Severity.ERROR
+    assert issue.evidence == Evidence(column="*", total=2, rows=(2, 4))
+
+
+def test_empty_trailing_fields_beyond_header_are_tolerated(tmp_path):
+    # Trailing delimiters ("Acme,Jane,,") add only empty overflow: nothing shifted.
+    path = tmp_path / "trailing.csv"
+    path.write_text("company,person_name\nAcme,Jane,,\nBeta,Bob, \n", encoding="utf-8")
+    result = validate_csv(path, profile_name="outreach")
+    assert result.status is Status.PASS
+    assert result.issues == []

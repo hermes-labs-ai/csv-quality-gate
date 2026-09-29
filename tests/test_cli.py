@@ -181,3 +181,24 @@ def test_cli_still_rejects_unknown_options():
     assert result.returncode == 2
     assert "unrecognized arguments: --bogus" in result.stderr
     assert result.stdout == ""
+
+
+def test_cli_unreadable_file_is_a_failing_receipt_not_a_traceback(tmp_path):
+    import os
+
+    import pytest
+
+    locked = tmp_path / "locked.csv"
+    locked.write_text("company\nAcme\n", encoding="utf-8")
+    locked.chmod(0)
+    try:
+        if os.access(locked, os.R_OK):
+            pytest.skip("file permissions are not enforced (running as root?)")
+        result = run_cli("check", str(FIXTURES / "clean.csv"), str(locked), "--json")
+    finally:
+        locked.chmod(0o644)
+    assert result.returncode == 2
+    assert "Traceback" not in result.stderr
+    payload = json.loads(result.stdout)
+    assert [item["status"] for item in payload] == ["pass", "fail"]
+    assert payload[1]["issues"][0]["message"].startswith("could not read file:")
