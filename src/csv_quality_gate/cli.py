@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Mapping
-from importlib.metadata import PackageNotFoundError, version as _dist_version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _dist_version
 from pathlib import Path
 
 from .models import GateResult, Issue, Severity, Status
@@ -23,7 +24,9 @@ def build_parser() -> argparse.ArgumentParser:
         prog="csv-quality-gate",
         description="Run CSV preflight validation and fail fast before expensive pipeline runs.",
     )
-    parser.add_argument("--version", action="version", version=f"csv-quality-gate {_package_version()}")
+    parser.add_argument(
+        "--version", action="version", version=f"csv-quality-gate {_package_version()}"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     check = subparsers.add_parser("check", help="run batch CSV quality checks on one or more files")
